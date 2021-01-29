@@ -1,4 +1,6 @@
 package de.stahl;
+
+import de.stahl.model.Graph;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,10 +9,12 @@ import java.util.logging.*;
 
 public class DistributedTracing {
 
-    private static final Logger log = Logger.getLogger( DistributedTracing.class.getName() );
+    private static final Logger log = Logger.getLogger(DistributedTracing.class.getName());
 
     public static void main(String[] args) {
-        System.out.println(readInputGraphFromTextFile());
+        String graphInputString = readInputGraphFromTextFile();
+        Graph graph = new Graph(graphInputString);
+        System.out.println(graph.getGraphToplogy().size());
     }
 
     protected static String readInputGraphFromTextFile() {
@@ -18,7 +22,7 @@ public class DistributedTracing {
             Path path = Paths.get("src/main/resources/InputGraph.txt");
             return Files.readString(path);
         } catch (IOException e) {
-            log.log(Level.SEVERE,e.getMessage(),e);
+            log.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
