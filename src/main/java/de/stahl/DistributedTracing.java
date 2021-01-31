@@ -14,7 +14,8 @@ public class DistributedTracing {
     public static void main(String[] args) {
         String graphInputString = readInputGraphFromTextFile();
         Graph graph = new Graph(graphInputString);
-        System.out.println(graph.getGraphToplogy().size());
+
+
     }
 
     protected static String readInputGraphFromTextFile() {
