@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.List;
+import java.util.Stack;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -70,13 +73,40 @@ public class DistributedTracingTest {
     @Test
     //Result of C,C with max 3 hops should be 2
     void evaluateRouteCount6()   {
-        assertEquals(2,graph.evaluateRoutes(new Node("C"),new Node("C"),3,null).size());
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), 3, null,null);
+        List<List<Node>> informationAboutRoutes = graph.getNodeListsFromEdges(allConnectionPaths);
+        assertEquals(2, informationAboutRoutes.size());
     }
 
     @Test
     //Result of A,C with exactly 4 hops should be 3
     void evaluateRouteCount7()   {
-        assertEquals(3,graph.evaluateRoutes(new Node("A"),new Node("C"),null,4).size());
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, 4,null);
+        List<List<Node>> informationAboutRoutes = graph.getNodeListsFromEdges(allConnectionPaths);
+        assertEquals(3,informationAboutRoutes.size());
     }
 
+    @Test
+    //shortest latency of A,C
+    void evaluateRouteCount8()   {
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, null,null);
+        int minimumLatency = graph.getMinimumLatency(allConnectionPaths);
+        assertEquals(9,minimumLatency);
+    }
+
+    @Test
+    //shortest latency of B,C
+    void evaluateRouteCount9()   {
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("B"), new Node("B"), 10, null,null);
+        int minimumLatency = graph.getMinimumLatency(allConnectionPaths);
+        assertEquals(9,minimumLatency);
+    }
+
+    //TODO:
+    @Test
+    //average latency of C,C with less then 30
+    void evaluateRouteCount10()   {
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), null, null, 30);
+        assertEquals(7,allConnectionPaths.size());
+    }
 }
