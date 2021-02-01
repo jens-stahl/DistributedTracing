@@ -20,10 +20,9 @@ public interface GraphAPI {
      * @param target target node of the route
      * @param maxHops maximum of allowed hops
      * @param hopGoal amount of hops to be reached
-     * @param maxLatency a max latency a route is allowed to have (latency has to be below this number)
      * @return routs found
      */
-    public List<Stack> evaluateEdges(Node source, Node target, Integer maxHops, Integer hopGoal, Integer maxLatency);
+    public List<Stack> evaluateEdges(Node source, Node target, Integer maxHops, Integer hopGoal);
     /**
      * Calculates the overall latency of a route
      *

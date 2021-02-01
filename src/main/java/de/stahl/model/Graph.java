@@ -1,6 +1,7 @@
 package de.stahl.model;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Graph implements GraphAPI {
@@ -66,18 +67,41 @@ public class Graph implements GraphAPI {
         return minimumLatency;
     }
 
-    public List<Stack> evaluateEdges(Node source, Node target, Integer maxHops, Integer hopGoal, Integer maxLatency) {
+    class WrapInt{
+        int value;
+    }
+
+    public int countPathsWithMaxLatency(List<Stack> allConnectionPaths, int maxLatency)  {
+        Integer latency = 0;
+        AtomicInteger counter = checkLatency(allConnectionPaths, maxLatency, latency, new AtomicInteger(0));
+        return counter.get();
+    }
+
+    private AtomicInteger checkLatency(List<Stack> allConnectionPaths, int maxLatency, Integer latency, AtomicInteger counter) {
+        for (Stack pathToCheck : allConnectionPaths) {
+            int currentLatency = getLatencyFromEdges(pathToCheck, null);
+            if (latency + currentLatency > maxLatency) {
+                continue;
+            }
+            if (latency + currentLatency < maxLatency) {
+                counter.incrementAndGet();
+                checkLatency(allConnectionPaths, maxLatency, latency+currentLatency, counter);
+            }
+        }
+        return counter;
+    }
+
+    public List<Stack> evaluateEdges(Node source, Node target, Integer maxHops, Integer hopGoal) {
         if (source == null || target == null) {
             throw new RuntimeException("Amount of routes cannot be evaluated! Please provide source and target node");
         }
-        Set<String> foundRoutes = new HashSet();
         Stack<Edge> connectionPath = new Stack();
         List<Stack> allConnectionPaths = new ArrayList<>();
-        evaluateEdge(source, target, connectionPath, allConnectionPaths, maxHops, hopGoal, maxLatency, foundRoutes);
+        evaluateEdge(source, target, connectionPath, allConnectionPaths, maxHops, hopGoal);
         return allConnectionPaths;
     }
 
-    private Integer evaluateEdge(Node currentSource, Node targetOfRoute, Stack<Edge> connectionPath, List<Stack> allConnectionPaths, Integer maxHops, Integer hopGoal, Integer maxLatency, Set foundRoutes) {
+    private Integer evaluateEdge(Node currentSource, Node targetOfRoute, Stack<Edge> connectionPath, List<Stack> allConnectionPaths, Integer maxHops, Integer hopGoal) {
         List<Edge> edges = getGraphToplogy().get(currentSource);
         if (edges == null) {
             return null;
@@ -88,17 +112,6 @@ public class Graph implements GraphAPI {
             //can we stop here?
             if (targetEdgeToCheck.equals(targetOfRoute)) {
                 finished = true;
-            }
-            if (maxLatency != null) {
-                if (foundRoutes.contains(getStringRepresentationOfPath(createTmpStack(connectionPath,edge)))) {
-                    finished = false;
-                } else {
-                    int latency = getLatencyFromEdges(connectionPath, edge);
-                    if (latency >= maxLatency) {
-                        //latency too high
-                        continue;
-                    }
-                }
             }
             if (maxHops != null && connectionPath.size() > maxHops - 1) {
                 //too many hops, continue
@@ -113,11 +126,11 @@ public class Graph implements GraphAPI {
             }
             if (finished) {
                 //Found a targetnode!
-                addStackToAllConnectionPaths(connectionPath, allConnectionPaths, edge, foundRoutes);
+                addStackToAllConnectionPaths(connectionPath, allConnectionPaths, edge);
             } else {
                 //not found keep on going!
                 connectionPath.push(edge);
-                evaluateEdge(edge.getTarget(), targetOfRoute, connectionPath, allConnectionPaths, maxHops, hopGoal, maxLatency, foundRoutes);
+                evaluateEdge(edge.getTarget(), targetOfRoute, connectionPath, allConnectionPaths, maxHops, hopGoal);
                 connectionPath.pop();
             }
         }
@@ -141,10 +154,9 @@ public class Graph implements GraphAPI {
 
 
     private void addStackToAllConnectionPaths
-            (Stack<Edge> connectionPath, List<Stack> allConnectionPaths, Edge targetEdge, Set foundRoutes) {
+            (Stack<Edge> connectionPath, List<Stack> allConnectionPaths, Edge targetEdge) {
         Stack<Edge> temp = createTmpStack(connectionPath, targetEdge);
         allConnectionPaths.add(temp);
-        foundRoutes.add(getStringRepresentationOfPath(temp));
     }
 
     private Stack<Edge> createTmpStack(Stack<Edge> connectionPath, Edge targetEdge) {
@@ -154,15 +166,6 @@ public class Graph implements GraphAPI {
         }
         temp.add(targetEdge);
         return temp;
-    }
-
-    private String getStringRepresentationOfPath(Stack<Edge> connectionPath) {
-        StringBuilder path = new StringBuilder();
-        List<Node> nodesFromEdges = getNodesFromEdges(connectionPath);
-        for (Node nodesFromEdge : nodesFromEdges) {
-            path.append(nodesFromEdge.getName());
-        }
-        return path.toString();
     }
 
     public int evaluateOverallLatency(Node... nodes) {

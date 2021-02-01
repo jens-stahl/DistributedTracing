@@ -73,7 +73,7 @@ public class DistributedTracingTest {
     @Test
     //Result of C,C with max 3 hops should be 2
     void evaluateRouteCount6()   {
-        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), 3, null,null);
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), 3, null);
         List<List<Node>> informationAboutRoutes = graph.getNodeListsFromEdges(allConnectionPaths);
         assertEquals(2, informationAboutRoutes.size());
     }
@@ -81,7 +81,7 @@ public class DistributedTracingTest {
     @Test
     //Result of A,C with exactly 4 hops should be 3
     void evaluateRouteCount7()   {
-        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, 4,null);
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, 4);
         List<List<Node>> informationAboutRoutes = graph.getNodeListsFromEdges(allConnectionPaths);
         assertEquals(3,informationAboutRoutes.size());
     }
@@ -89,7 +89,7 @@ public class DistributedTracingTest {
     @Test
     //shortest latency of A,C
     void evaluateRouteCount8()   {
-        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, null,null);
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("A"), new Node("C"), null, null);
         int minimumLatency = graph.getMinimumLatency(allConnectionPaths);
         assertEquals(9,minimumLatency);
     }
@@ -97,16 +97,16 @@ public class DistributedTracingTest {
     @Test
     //shortest latency of B,C
     void evaluateRouteCount9()   {
-        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("B"), new Node("B"), 10, null,null);
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("B"), new Node("B"), 10, null);
         int minimumLatency = graph.getMinimumLatency(allConnectionPaths);
         assertEquals(9,minimumLatency);
     }
 
-    //TODO:
     @Test
     //average latency of C,C with less then 30
     void evaluateRouteCount10()   {
-        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), null, null, 30);
-        assertEquals(7,allConnectionPaths.size());
+        List<Stack> allConnectionPaths = graph.evaluateEdges(new Node("C"), new Node("C"), null, null);
+        int count = graph.countPathsWithMaxLatency(allConnectionPaths,30);
+        assertEquals(7,count);
     }
 }
