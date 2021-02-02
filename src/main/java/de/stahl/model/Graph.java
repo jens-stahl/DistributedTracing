@@ -56,7 +56,11 @@ public class Graph implements GraphAPI {
         return result;
     }
 
-    public int getMinimumLatency(List<Stack> allConnectionPaths) {
+    public int getMinimumLatency(Node source, Node target, Integer maxHops, Integer hopGoal) {
+        return getMinimumLatency(evaluateEdges(source,target,maxHops,hopGoal));
+    }
+
+    private int getMinimumLatency(List<Stack> allConnectionPaths) {
         int minimumLatency = -1;
         for (Stack allConnectionPath : allConnectionPaths) {
             int currentLatency = getLatencyFromEdges(allConnectionPath, null);
@@ -67,11 +71,11 @@ public class Graph implements GraphAPI {
         return minimumLatency;
     }
 
-    class WrapInt{
-        int value;
+    public int countPathsWithMaxLatency(Node source, Node target, Integer maxHops, Integer hopGoal, int maxLatency)  {
+        return countPathsWithMaxLatency(evaluateEdges(source,target,maxHops,hopGoal),maxLatency);
     }
 
-    public int countPathsWithMaxLatency(List<Stack> allConnectionPaths, int maxLatency)  {
+    private int countPathsWithMaxLatency(List<Stack> allConnectionPaths, int maxLatency)  {
         Integer latency = 0;
         AtomicInteger counter = checkLatency(allConnectionPaths, maxLatency, latency, new AtomicInteger(0));
         return counter.get();

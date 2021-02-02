@@ -1,30 +1,27 @@
 package de.stahl;
 
 import de.stahl.model.Graph;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.logging.*;
+import de.stahl.model.Node;
+import de.stahl.util.Util;
 
 public class DistributedTracing {
 
-    private static final Logger log = Logger.getLogger(DistributedTracing.class.getName());
-
     public static void main(String[] args) {
-        String graphInputString = readInputGraphFromTextFile();
+        String graphInputString = Util.readInputGraphFromTextFile();
         Graph graph = new Graph(graphInputString);
-
-
-    }
-
-    protected static String readInputGraphFromTextFile() {
+        System.out.println(graph.evaluateOverallLatency(new Node("A"), new Node("B"), new Node("C")));
+        System.out.println(graph.evaluateOverallLatency(new Node("A"), new Node("D")));
+        System.out.println(graph.evaluateOverallLatency(new Node("A"), new Node("D"), new Node("C")));
+        System.out.println(graph.evaluateOverallLatency(new Node("A"), new Node("E"), new Node("B"), new Node("C"), new Node("D")));
         try {
-            Path path = Paths.get("src/main/resources/InputGraph.txt");
-            return Files.readString(path);
-        } catch (IOException e) {
-            log.log(Level.SEVERE, e.getMessage(), e);
+            System.out.println(graph.evaluateOverallLatency(new Node("A"), new Node("E"), new Node("D")));
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
         }
-        return null;
+        System.out.println(graph.evaluateEdges(new Node("C"), new Node("C"), 3, null).size());
+        System.out.println(graph.evaluateEdges(new Node("A"), new Node("C"), null, 4).size());
+        System.out.println(graph.getMinimumLatency(new Node("A"), new Node("C"), null, null));
+        System.out.println(graph.getMinimumLatency(new Node("B"), new Node("B"), 10, null));
+        System.out.println(graph.countPathsWithMaxLatency(new Node("C"), new Node("C"), null, null,30));
     }
 }
